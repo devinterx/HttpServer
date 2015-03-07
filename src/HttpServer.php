@@ -64,7 +64,6 @@ class HttpServer {
         // header modificators
         $modificators = array();
         if (isset($host['match'])) {
-            // var_dump($host['match']);
             foreach ($host['match'] as $match_expression => $match_modificators) {
                 if (preg_match('~'.$match_expression.'~', $url['path'])) {
                     foreach ($match_modificators as $match_modificator => $match_modificator_arg) {
@@ -90,6 +89,18 @@ class HttpServer {
                     }
                 }
             }
+        }
+
+        $choosed_encoding = null;
+        if (isset($reader->headers['Accept-Encoding']) && isset($host['compress'])) {
+            $accepted_encodings = array_map('trim', explode(',', $reader->headers['Accept-Encoding']));
+            $available_encodings = explode(',', $host['compress']);
+            if (in_array('deflate', $available_encodings) && version_compare(PHP_VERSION, '5.4.0', '<')) {
+                fwrite(STDERR, "[warning] deflate compression can't be used on PHP prior to 5.4.0 due to gzencode behavior change.");
+                unset($available_encodings[array_search('deflate', $available_encodings)]);
+            }
+            $used_encodings = array_intersect($available_encodings, $accepted_encodings);
+            if (count($used_encodings) > 0) $choosed_encoding = $used_encodings[0];
         }
 
         if (file_exists($host['document_root'].$url['path'])) {
@@ -118,7 +129,19 @@ class HttpServer {
                     if (empty($contentType)) $contentType = 'text/html';
                     $writer->writeCodeMessage($codeMessage[0], $codeMessage[1]);
                     $writer->writeHeader('Content-Type: '.$contentType);
-                    $writer->writeHeader('Content-Length: '.strlen($content));
+
+                    switch ($choosed_encoding) {
+                        default:
+                            $writer->writeHeader('Content-Length: '.strlen($content));
+                            break;
+                        case 'gzip':
+                            $writer->writeHeader('Content-Encoding: gzip');
+                            break;
+                        case 'deflate':
+                            $writer->writeHeader('Content-Encoding: deflate');
+                            break;
+                    }
+
                     foreach ($default as $dheader)
                         $writer->writeHeader($dheader);
 
@@ -126,7 +149,19 @@ class HttpServer {
                         $writer->writeHeader($header);
                         header_remove($header);
                     }
-                    $writer->writeContent($content);
+
+                    switch ($choosed_encoding) {
+                        default:
+                            $writer->writeContent($content);
+                            break;
+                        case 'gzip':
+                            $writer->writeContent(gzencode($content), true);
+                            break;
+                        case 'deflate':
+                            $writer->writeContent(gzencode($content, FORCE_DEFLATE), true);
+                            break;
+
+                    }
                     break;
                 default:
                     $writer->writeCodeMessage(200, 'OK');

@@ -48,6 +48,10 @@ class ConfigurationReader {
                             $rule = trim(strstr(substr($line, strpos($line, ' ')), ':', true));
                             $this->hostnames[$in_section]['match'][$rule] = array('_offset' => $offset);
                             $in_rule = $rule;
+                            break;
+                        case 'compress':
+                            $this->hostnames[$in_section]['compress'] = rtrim(substr($line, strpos($line, ' ') + 1), ' ;');
+                            break;
                     }
                 }
             }

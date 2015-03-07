@@ -26,6 +26,7 @@ wapcode.ru:
 
 default:
     document_root C:\Users\User\Documents;
+    compress gzip,deflate;
 
 global.conf:
     document_root C:\Users\User\global.conf;
@@ -49,7 +50,10 @@ Inside a block following directives available.
 
 **replace**.
 > Allows replace requested path with regular expressions. First argument is an regular expression. Second is a destination path. (Must start with slash). Last arg is flags. *not_exist* flag changes behavior of replacement: if requested path exist, even if path matches expression, replacement will not be performed.
- 
+
+**compress**.
+> Sets available compression methods for response generation. Available: *gzip,defalte*.
+
 **match**.
 > Specifies additional directives for special path(s).
 
