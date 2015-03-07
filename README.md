@@ -9,6 +9,7 @@ Because I can.
 2. GET and POST requests.
 3. PHP files starting (with properly filled _SERVER, _POST, _GET, _COOKIE) and static files downloading.
 4. Forking on any request to avoid delays.
+5. Compression gzip, deflate.
 
 # Configuration
 All configuration in file **httpserver.configuration**.
