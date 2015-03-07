@@ -40,7 +40,7 @@ Some special host names:
 Inside server configuration following directives available.
 
 **listen**.
-Sets server port to listen on.
+> Sets server port to listen on.
 
 Inside a block following directives available.
 
@@ -55,3 +55,6 @@ Inside a block following directives available.
 
 **cache**.
 > Tells server to add Cache header in response.
+
+# How can I test that?
+Download, Unpack, Update with composer (`composer update`), and run bin/httpserver (`php bin/httpserver`)
