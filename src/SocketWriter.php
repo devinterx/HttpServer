@@ -16,7 +16,9 @@ class SocketWriter {
         socket_write($this->socket, 'HTTP/1.1 '.$code.' '.$message."\n");
     }
 
-    public function writeContent($content) {
+    public function writeContent($content, $countLength = false) {
+        if ($countLength)
+            socket_write($this->socket, 'Content-Length: '.strlen($content)."\n");
         socket_write($this->socket, "\n".$content);
     }
 

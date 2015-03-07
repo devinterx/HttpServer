@@ -16,14 +16,14 @@ class HttpServer {
         } catch (HttpException $e) {
             $writer->writeCodeMessage($e->getCode(), $e->getMessage());
             $writer->writeHeader('Content-Type: text/html');
-            $writer->writeContent('<html><body><h1>400 Bad Request</h1>Provided request is malformed</body></html>');
+            $writer->writeContent('<html><body><h1>400 Bad Request</h1>Provided request is malformed</body></html>', true);
             return;
         }
 
         if ((!isset($reader->headers['Host']) || !isset($this->configuration->hostnames[$reader->headers['Host']])) && !isset($this->configuration->hostnames['default'])) {
             $writer->writeCodeMessage(503, 'Host is not found');
             $writer->writeHeader('Content-Type: text/html');
-            $writer->writeContent('<html><body><h1>503 Host not found</h1>Selected host has not been found on this server</body></html>');
+            $writer->writeContent('<html><body><h1>503 Host not found</h1>Selected host has not been found on this server</body></html>', true);
             return;
         }
 
@@ -53,10 +53,13 @@ class HttpServer {
             if (substr($url['path'], -1) == '/') {
                 $writer->writeCodeMessage(404, 'Not found');
                 $writer->writeHeader('Content-Type: text/html');
-                $writer->writeContent('<html><body><h1>404 Not found</h1>Index file for this directory not found</body></html>');
+                $writer->writeContent('<html><body><h1>404 Not found</h1>Index file for this directory not found</body></html>', true);
                 return;
             }
         }
+
+        // default headers
+        $default = array('Connection: close');
 
         // header modificators
         $modificators = array();
@@ -116,6 +119,8 @@ class HttpServer {
                     $writer->writeCodeMessage($codeMessage[0], $codeMessage[1]);
                     $writer->writeHeader('Content-Type: '.$contentType);
                     $writer->writeHeader('Content-Length: '.strlen($content));
+                    foreach ($default as $dheader)
+                        $writer->writeHeader($dheader);
 
                     foreach (headers_list() as $header) {
                         $writer->writeHeader($header);
@@ -131,6 +136,8 @@ class HttpServer {
                     $writer->writeHeader('Content-Length: '.filesize($host['document_root'].$url['path']));
                     $writer->writeHeader('Date: '.date('D, j M Y H:i:s e'));
                     $writer->writeHeader('Last-Modified: '.date('D, j M Y H:i:s e', filemtime($host['document_root'].$url['path'])));
+                    foreach ($default as $dheader)
+                        $writer->writeHeader($dheader);
                     if (isset($modificators['cache'])) {
                         $writer->writeHeader('Cache-Control: public, max-age='.$modificators['cache']);
                         $writer->writeHeader('Expires: '.date('D, j M Y H:i:s e', time() + $modificators['cache']));
@@ -138,6 +145,11 @@ class HttpServer {
                     $writer->writeContentFromFile($host['document_root'].$url['path']);
                     break;
             }
+        } else {
+            $writer->writeCodeMessage(404, 'Not found');
+            $writer->writeHeader('Content-Type: text/html');
+            $writer->writeContent('<html><body><h1>404 Not found</h1>File not found</body></html>', true);
+            return;
         }
     }
 
