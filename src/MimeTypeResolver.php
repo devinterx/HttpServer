@@ -4,7 +4,7 @@ namespace wapmorgan\HttpServer;
 class MimeTypeResolver {
     static public $pairs = [
         'html' => 'text/html',
-        'js' => 'application/javascript'
+        'js' => 'application/javascript',
         'css' => 'text/css',
         'mp4' => 'video/mp4',
     ];

@@ -58,6 +58,37 @@ class HttpServer {
             }
         }
 
+        // header modificators
+        $modificators = array();
+        if (isset($host['match'])) {
+            // var_dump($host['match']);
+            foreach ($host['match'] as $match_expression => $match_modificators) {
+                if (preg_match('~'.$match_expression.'~', $url['path'])) {
+                    foreach ($match_modificators as $match_modificator => $match_modificator_arg) {
+                        if ($match_modificator == '_offset') continue;
+                        switch ($match_modificator) {
+                            case 'cache':
+                                switch (substr($match_modificator_arg, -1)) {
+                                    case 'd':
+                                        $modificators['cache'] = $match_modificator_arg * 86400;
+                                        break;
+                                    case 'h':
+                                        $modificators['cache'] = $match_modificator_arg * 3600;
+                                        break;
+                                    case 'm':
+                                        $modificators['cache'] = $match_modificator_arg * 60;
+                                        break;
+                                    case 's':
+                                        $modificators['cache'] = (int)$match_modificator_arg;
+                                        break;
+                                }
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+
         if (file_exists($host['document_root'].$url['path'])) {
             // check for file type
             $extension = pathinfo($host['document_root'].$url['path'], PATHINFO_EXTENSION);
@@ -100,6 +131,10 @@ class HttpServer {
                     $writer->writeHeader('Content-Length: '.filesize($host['document_root'].$url['path']));
                     $writer->writeHeader('Date: '.date('D, j M Y H:i:s e'));
                     $writer->writeHeader('Last-Modified: '.date('D, j M Y H:i:s e', filemtime($host['document_root'].$url['path'])));
+                    if (isset($modificators['cache'])) {
+                        $writer->writeHeader('Cache-Control: public, max-age='.$modificators['cache']);
+                        $writer->writeHeader('Expires: '.date('D, j M Y H:i:s e', time() + $modificators['cache']));
+                    }
                     $writer->writeContentFromFile($host['document_root'].$url['path']);
                     break;
             }

@@ -21,7 +21,7 @@ class SocketWriter {
     }
 
     public function writeContentFromFile($file) {
-        $fp = fopen($file);
+        $fp = fopen($file, 'rb');
         socket_write($this->socket, "\n");
         while (!feof($fp)) {
             socket_write($this->socket, fread($fp, 8192));

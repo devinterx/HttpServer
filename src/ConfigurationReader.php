@@ -31,7 +31,7 @@ class ConfigurationReader {
                 } else {
                     if ($in_rule) {
                         if ($offset > $this->hostnames[$in_section]['match'][$in_rule]['_offset']) {
-                            $this->hostnames[$in_section]['match'][$in_rule][strstr($line, ' ', true)] = rtrim(substr($line, strpos($line, ' ')), ';');
+                            $this->hostnames[$in_section]['match'][$in_rule][strstr($line, ' ', true)] = trim(substr($line, strpos($line, ' ')), '; ');
                             continue;
                         } else {
                             $in_rule = null;
@@ -45,7 +45,7 @@ class ConfigurationReader {
                             $this->hostnames[$in_section]['replace'][] = rtrim(substr($line, strpos($line, ' ') + 1), ';');
                             break;
                         case 'match':
-                            $rule = strstr(substr($line, strpos($line, ' ')), ':', true);
+                            $rule = trim(strstr(substr($line, strpos($line, ' ')), ':', true));
                             $this->hostnames[$in_section]['match'][$rule] = array('_offset' => $offset);
                             $in_rule = $rule;
                     }
