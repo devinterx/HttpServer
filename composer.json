@@ -1,0 +1,9 @@
+{
+    "name": "wapmorgan/httpserver",
+    "description": "",
+    "autoload": {
+        "psr-4": {
+            "wapmorgan\\HttpServer\\": "src/"
+        }
+    }
+}

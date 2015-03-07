@@ -1,0 +1,14 @@
+global:
+    listen 80
+
+wapcode.ru:
+    document_root C:\Users\Сергей\Documents;
+    match *.(png|jpe?g|gif):
+        cache 30d;
+    replace (.+) /index.php?$1 not_exist;
+
+default:
+    document_root C:\Users\Сергей\Documents;
+
+global.conf:
+    document_root C:\Users\Сергей\global.conf;
