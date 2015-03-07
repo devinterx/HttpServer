@@ -1,5 +1,5 @@
 # HttpServer
-This is a http server completely written in PHP - *HttpServer*.
+This is a http server for PHP completely written in PHP - *HttpServer*.
 
 # Why do you do this?
 Because I can.
